@@ -32,7 +32,7 @@
   "calcetines",
   "insp-calcetines",
   "conjunto",
-  "siguientes"
+  "gracias"
  ],
  "sections": {
   "s1": {
@@ -52,7 +52,7 @@
    "start": "algodon"
   },
   "s5": {
-   "description": "Conjunto y siguientes pasos",
+   "description": "Conjunto y cierre",
    "start": "conjunto"
   }
  },
