@@ -1,0 +1,70 @@
+{
+ "v": 4,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-04T01:35:00Z"
+ },
+ "lists": "css",
+ "title": "KM CEO · Equipación",
+ "order": [
+  "cover",
+  "sistema",
+  "mensajes",
+  "coleccion",
+  "tirantes-comparativa",
+  "tirantes-t1",
+  "tirantes-t2",
+  "tirantes-t3",
+  "insp-tirantes-t2",
+  "insp-tirantes-t1",
+  "insp-tirantes-t3",
+  "tri-sin-mangas",
+  "insp-tri-sin-mangas",
+  "tri-manga-corta",
+  "insp-tri-manga-corta",
+  "tri-arena-sin-mangas",
+  "insp-tri-arena-sin-mangas",
+  "tri-arena-manga-corta",
+  "insp-tri-arena-manga-corta",
+  "algodon",
+  "insp-algodon",
+  "algodon-blanco",
+  "calcetines",
+  "insp-calcetines",
+  "conjunto",
+  "siguientes"
+ ],
+ "sections": {
+  "s1": {
+   "description": "Concepto: sistema visual y mensajes",
+   "start": "cover"
+  },
+  "s2": {
+   "description": "Tirantes de running: 9 variantes e inspiracionales",
+   "start": "tirantes-comparativa"
+  },
+  "s3": {
+   "description": "Tritrajes: grafito y versión arena para verano",
+   "start": "tri-sin-mangas"
+  },
+  "s4": {
+   "description": "Algodón y calcetines",
+   "start": "algodon"
+  },
+  "s5": {
+   "description": "Conjunto y siguientes pasos",
+   "start": "conjunto"
+  }
+ },
+ "faces": {
+  "archivo-black": {
+   "family": "Archivo Black",
+   "href": "https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap"
+  },
+  "archivo": {
+   "family": "Archivo",
+   "href": "https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&display=swap"
+  }
+ },
+ "designSystems": []
+}

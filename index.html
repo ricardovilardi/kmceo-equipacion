@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KM CEO · Equipación</title>
+<meta name="description" content="Propuesta de equipación KM CEO: mockups de producto e imágenes inspiracionales.">
+<link rel="icon" href="assets/img/logo-sand.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap">
+<style>
+  :root {
+    --ink: #141517;
+    --graphite: #26282B;
+    --orange: #F26A1F;
+    --sand: #CDBFA8;
+    --paper: #F3F1EC;
+    --chrome-h: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--ink); color: var(--paper); overflow: hidden;
+    font-family: 'Archivo', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  /* Escenario: las diapositivas son 1920x1080 y se escalan al hueco disponible */
+  #viewport { position: fixed; inset: 0 0 var(--chrome-h) 0; overflow: hidden; touch-action: pan-y; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center center; }
+  .slide { position: absolute; inset: 0; visibility: hidden; opacity: 0; transition: opacity .35s ease, visibility 0s linear .35s; }
+  .slide.active { visibility: visible; opacity: 1; transition: opacity .35s ease; }
+  :is(.slide, .clone) > section { position: relative; width: 1920px; height: 1080px; overflow: hidden; box-sizing: border-box; }
+  :is(.slide, .clone) :is(h1, h2, h3, p, ul, table) { margin: 0; }
+  :is(.slide, .clone) ul { padding-left: 1.1em; }
+  :is(.slide, .clone) li + li { margin-top: .25em; }
+  :is(.slide, .clone) table { border-collapse: collapse; width: 100%; }
+  :is(.slide, .clone) :is(th, td) { text-align: left; padding: .45em .6em; border-bottom: 1px solid rgba(20,21,23,.18); }
+  :is(.slide, .clone) th { font-weight: 700; }
+
+  /* Barra inferior */
+  #chrome { position: fixed; left: 0; right: 0; bottom: 0; height: var(--chrome-h); display: flex; align-items: center; gap: 8px;
+    padding: 0 12px; background: rgba(20,21,23,.94); border-top: 1px solid #2c2e32; z-index: 10; }
+  #progress { position: absolute; left: 0; top: -3px; height: 3px; background: var(--orange); transition: width .3s ease; }
+  .btn { height: 40px; min-width: 40px; padding: 0 12px; border: 1px solid #3a3d42; border-radius: 8px; background: transparent;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 14px; }
+  .btn:hover { background: #26282B; }
+  .btn:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .btn svg { width: 18px; height: 18px; }
+  #counter { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--sand); min-width: 64px; text-align: center; }
+  #slide-title { flex: 1; min-width: 0; font-size: 14px; color: #a7a39b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand { font-family: 'Archivo Black', Arial, sans-serif; font-size: 14px; letter-spacing: .04em; color: var(--paper); padding-right: 8px; }
+  .brand b { color: var(--orange); font-weight: 400; }
+
+  /* Menú de secciones */
+  #menu { position: fixed; left: 12px; bottom: calc(var(--chrome-h) + 8px); background: #1c1d20; border: 1px solid #3a3d42;
+    border-radius: 12px; padding: 8px; list-style: none; margin: 0; display: none; z-index: 20; min-width: 280px; }
+  #menu.open { display: block; }
+  #menu button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; border-radius: 8px; font-size: 15px; }
+  #menu button:hover, #menu button:focus-visible { background: #2a2c30; outline: none; }
+
+  /* Vista de miniaturas */
+  #grid { position: fixed; inset: 0 0 var(--chrome-h) 0; overflow-y: auto; background: var(--ink); z-index: 15; display: none;
+    padding: 24px; }
+  #grid.open { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; align-content: start; }
+  .thumb { background: none; border: 0; padding: 0; text-align: left; }
+  .thumb .frame { display: block; position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; border: 2px solid transparent; background: #222; }
+  .thumb.current .frame { border-color: var(--orange); }
+  .thumb:hover .frame, .thumb:focus-visible .frame { border-color: var(--sand); outline: none; }
+  .thumb .frame > div { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; pointer-events: none; }
+  .thumb .cap { display: block; margin-top: 8px; font-size: 13px; color: #a7a39b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .thumb .cap b { color: var(--paper); margin-right: 6px; }
+
+  /* Ayuda */
+  #help { position: fixed; right: 12px; bottom: calc(var(--chrome-h) + 8px); background: #1c1d20; border: 1px solid #3a3d42; border-radius: 12px;
+    padding: 14px 18px; font-size: 14px; line-height: 1.8; display: none; z-index: 20; }
+  #help.open { display: block; }
+  kbd { font-family: ui-monospace, Menlo, monospace; font-size: 12px; border: 1px solid #4a4d52; border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px; }
+
+  @media (max-width: 640px) {
+    :root { --chrome-h: 52px; }
+    .brand, #slide-title, .hide-sm { display: none; }
+    #chrome { justify-content: space-between; }
+  }
+  @media (prefers-reduced-motion: reduce) { .slide, #progress { transition: none !important; } }
+</style>
+</head>
+<body>
+<main id="viewport" aria-live="polite">
+  <div id="stage">
+<div class="slide" data-index="0" data-title="LA PRÓXIMA REUNIÓN, QUE SEA UN 5K" aria-roledescription="diapositiva" aria-label="1 de 26: LA PRÓXIMA REUNIÓN, QUE SEA UN 5K"><section id="cover" data-transition="fade" style="background:#26282B;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between">
+<img src="assets/img/logo-sand.png" alt="Logo KM CEO" style="width:240px;height:205px;object-fit:contain">
+<div style="display:flex;flex-direction:column;gap:28px">
+<p style="font-size:28px;color:#F26A1F;letter-spacing:6px;text-transform:uppercase;font-weight:600">Propuesta de equipación · mockups</p>
+<h1 style="font-family:'Archivo Black', Arial, sans-serif;font-size:112px;font-weight:400;line-height:1.0;color:#F3F1EC">LA PRÓXIMA REUNIÓN,<br>QUE SEA<br>UN <span style="color:#F26A1F">5K</span></h1>
+<p style="font-size:32px;color:#CDBFA8">5 prendas para el club · fabricación GSport Custom · km-ceo.com</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="1" data-title="Sistema visual" aria-roledescription="diapositiva" aria-label="2 de 26: Sistema visual"><section id="sistema" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:72px;font-weight:400;color:#F3F1EC">Sistema visual</h2>
+<div style="display:flex;gap:32px"><div style="flex:1;display:flex;flex-direction:column;gap:16px"><div style="height:220px;background:#26282B;border-radius:12px;border:1px solid #3A3D42"></div><h3 style="font-size:32px;font-weight:700;color:#F3F1EC">Grafito</h3><p style="font-size:24px;color:#CDBFA8">#26282B · base técnica</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><div style="height:220px;background:#F26A1F;border-radius:12px;border:1px solid #3A3D42"></div><h3 style="font-size:32px;font-weight:700;color:#F3F1EC">Naranja</h3><p style="font-size:24px;color:#CDBFA8">#F26A1F · acento</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><div style="height:220px;background:#CDBFA8;border-radius:12px;border:1px solid #3A3D42"></div><h3 style="font-size:32px;font-weight:700;color:#F3F1EC">Arena</h3><p style="font-size:24px;color:#CDBFA8">#CDBFA8 · logo sobre grafito</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><div style="height:220px;background:#F3F1EC;border-radius:12px;border:1px solid #3A3D42"></div><h3 style="font-size:32px;font-weight:700;color:#F3F1EC">Papel</h3><p style="font-size:24px;color:#CDBFA8">#F3F1EC · texto claro</p></div></div>
+<div style="display:flex;gap:64px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase">Textura</p><p style="font-size:28px;color:#F3F1EC">Curvas de nivel topográficas, tono sobre tono, muy sutiles.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase">Gráfico</p><p style="font-size:28px;color:#F3F1EC">Perfil de altimetría en zigzag ascendente, solo en los tritrajes.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase">Prohibido</p><p style="font-size:28px;color:#F3F1EC">Degradados, rombos, emojis y más de un GSPORT por prenda.</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8D93;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 02</p>
+
+</section></div>
+<div class="slide" data-index="2" data-title="LA PRÓXIMA REUNIÓN, QUE SEA UN 5K" aria-roledescription="diapositiva" aria-label="3 de 26: LA PRÓXIMA REUNIÓN, QUE SEA UN 5K"><section id="mensajes" data-transition="fade" style="background:#F26A1F;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<p style="font-size:28px;letter-spacing:6px;text-transform:uppercase;font-weight:600;color:#141517">Mensajes · texto exacto, con tildes</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:96px;font-weight:400;line-height:1.02;color:#141517">LA PRÓXIMA REUNIÓN,<br>QUE SEA <span style="color:#F3F1EC">UN 5K</span></h2>
+<div style="display:flex;gap:64px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#141517;letter-spacing:3px;text-transform:uppercase;font-weight:600">Agenda · T1 y algodón</p><p style="font-family:'Archivo Black', Arial, sans-serif;font-size:30px;line-height:1.35;color:#141517">CAFÉ · 5K<br>COMITÉ · 10K<br>CIERRE DE MES · 21K<br>JUNTA · 42K</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#141517;letter-spacing:3px;text-transform:uppercase;font-weight:600">Alternativa · T3</p><p style="font-family:'Archivo Black', Arial, sans-serif;font-size:30px;line-height:1.35;color:#141517">SIN SLIDES.<br>SOLO KILÓMETROS.</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#141517;letter-spacing:3px;text-transform:uppercase;font-weight:600">Secundario y web</p><p style="font-family:'Archivo Black', Arial, sans-serif;font-size:30px;line-height:1.35;color:#141517">TRAIN HARD.<br>LEAD HARDER.<br>km-ceo.com</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#141517;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 03</p>
+
+</section></div>
+<div class="slide" data-index="3" data-title="La colección" aria-roledescription="diapositiva" aria-label="4 de 26: La colección"><section id="coleccion" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:72px;font-weight:400;color:#141517">La colección</h2>
+<table style="font-size:30px;color:#141517;font-family:'Archivo', Arial, sans-serif"><tr><th style="width:7%">#</th><th style="width:37%">Prenda</th><th style="width:14%">Uds.</th><th style="width:42%">Base GSport</th></tr><tr><td style="width:7%">01</td><td style="width:37%">Tritraje sin mangas</td><td style="width:14%">2</td><td style="width:42%">Mono Pro Skin sin mangas · GSP-028-006</td></tr><tr><td style="width:7%">02</td><td style="width:37%">Tritraje manga corta</td><td style="width:14%">2</td><td style="width:42%">Mono Pro Skin MC · GSP-028-006</td></tr><tr><td style="width:7%">03</td><td style="width:37%">Tirantes running · 9 variantes</td><td style="width:14%">5</td><td style="width:42%">Camiseta Pro Tirantes · GSP-053-004</td></tr><tr><td style="width:7%">04</td><td style="width:37%">Camiseta algodón</td><td style="width:14%">5</td><td style="width:42%">Sin ficha custom · bordado</td></tr><tr><td style="width:7%">05</td><td style="width:37%">Calcetines</td><td style="width:14%">2–4 pares</td><td style="width:42%">Calcetines Custom · GSP-035-001 (mín. 25)</td></tr></table>
+<p style="font-size:28px;color:#5A5D63">Por prenda: imagen de producto en estudio + imagen inspiracional en uso real.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 04</p>
+
+</section></div>
+<div class="slide" data-index="4" data-title="9 espaldas, elegimos una" aria-roledescription="diapositiva" aria-label="5 de 26: 9 espaldas, elegimos una"><section id="tirantes-comparativa" data-transition="fade" data-section="Tirantes" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/03-tirantes_comparativa-3x3.jpg" alt="Comparativa de espaldas del tirante: 3 textos por 3 colores" style="position:absolute;left:96px;top:40px;width:713px;height:1000px;object-fit:contain">
+<div style="position:absolute;left:900px;top:128px;width:892px;display:flex;flex-direction:column;gap:32px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">03 · Tirantes running · 5 uds · prioridad</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:72px;font-weight:400;line-height:1.05;color:#F3F1EC">9 espaldas,<br>elegimos una</h2>
+<p style="font-size:28px;color:#CDBFA8">El delantero es igual en todas. Cambian el color y el bloque de la espalda.</p>
+<div style="display:flex;gap:40px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase">Colores</p><p style="font-size:28px;line-height:1.5;color:#F3F1EC">A · Naranja (principal)<br>B · Grafito<br>C · Blanco (verano)</p></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px"><p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase">Textos</p><p style="font-size:28px;line-height:1.5;color:#F3F1EC">T1 · Agenda<br>T2 · 5K<br>T3 · Slides</p></div>
+</div>
+</div>
+<p style="position:absolute;left:900px;bottom:64px;width:892px;font-size:24px;color:#8A8D93;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 05</p>
+
+</section></div>
+<div class="slide" data-index="5" data-title="CAFÉ · 5K / COMITÉ · 10K / CIERRE DE MES · 21K / JUNTA · 42K" aria-roledescription="diapositiva" aria-label="6 de 26: CAFÉ · 5K / COMITÉ · 10K / CIERRE DE MES · 21K / JUNTA · 42K"><section id="tirantes-t1" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">03 · Tirantes · T1 · Agenda</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:56px;font-weight:400;line-height:1.1;color:#141517">CAFÉ · 5K / COMITÉ · 10K / CIERRE DE MES · 21K / JUNTA · 42K</h2>
+</div>
+<div style="display:flex;gap:40px"><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T1-agenda_A-naranja_producto.jpg" alt="Tirante T1 · Agenda, versión A · Naranja (principal)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">A · Naranja (principal)</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T1-agenda_B-grafito_producto.jpg" alt="Tirante T1 · Agenda, versión B · Grafito" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">B · Grafito</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T1-agenda_C-blanco_producto.jpg" alt="Tirante T1 · Agenda, versión C · Blanco (verano)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">C · Blanco (verano)</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 06</p>
+
+</section></div>
+<div class="slide" data-index="6" data-title="LA PRÓXIMA REUNIÓN, QUE SEA UN 5K" aria-roledescription="diapositiva" aria-label="7 de 26: LA PRÓXIMA REUNIÓN, QUE SEA UN 5K"><section id="tirantes-t2" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">03 · Tirantes · T2 · 5K</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:56px;font-weight:400;line-height:1.1;color:#141517">LA PRÓXIMA REUNIÓN, QUE SEA UN 5K</h2>
+</div>
+<div style="display:flex;gap:40px"><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T2-5k_A-naranja_producto.jpg" alt="Tirante T2 · 5K, versión A · Naranja (principal)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">A · Naranja (principal)</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T2-5k_B-grafito_producto.jpg" alt="Tirante T2 · 5K, versión B · Grafito" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">B · Grafito</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T2-5k_C-blanco_producto.jpg" alt="Tirante T2 · 5K, versión C · Blanco (verano)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">C · Blanco (verano)</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 07</p>
+
+</section></div>
+<div class="slide" data-index="7" data-title="SIN SLIDES. SOLO KILÓMETROS." aria-roledescription="diapositiva" aria-label="8 de 26: SIN SLIDES. SOLO KILÓMETROS."><section id="tirantes-t3" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">03 · Tirantes · T3 · Slides</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:56px;font-weight:400;line-height:1.1;color:#141517">SIN SLIDES. SOLO KILÓMETROS.</h2>
+</div>
+<div style="display:flex;gap:40px"><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T3-slides_A-naranja_producto.jpg" alt="Tirante T3 · Slides, versión A · Naranja (principal)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">A · Naranja (principal)</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T3-slides_B-grafito_producto.jpg" alt="Tirante T3 · Slides, versión B · Grafito" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">B · Grafito</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T3-slides_C-blanco_producto.jpg" alt="Tirante T3 · Slides, versión C · Blanco (verano)" style="width:100%;height:396px;object-fit:cover;border-radius:8px"><p style="font-size:26px;font-weight:700;color:#141517">C · Blanco (verano)</p></div></div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 08</p>
+
+</section></div>
+<div class="slide" data-index="8" data-title="Rodaje en grupo" aria-roledescription="diapositiva" aria-label="9 de 26: Rodaje en grupo"><section id="insp-tirantes-t2" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/03-tirantes_T2-5k_A-naranja_inspiracional.jpg" alt="Rodaje en grupo: Jardín del Turia, primera hora." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;left:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">03 · Tirantes · T2 · A naranja</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Rodaje en grupo</h3>
+<p style="font-size:24px;color:#CDBFA8">Jardín del Turia, primera hora.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="9" data-title="Carrera popular 10K" aria-roledescription="diapositiva" aria-label="10 de 26: Carrera popular 10K"><section id="insp-tirantes-t1" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/03-tirantes_T1-agenda_B-grafito_inspiracional.jpg" alt="Carrera popular 10K: Ciudad de las Artes y las Ciencias." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;right:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">03 · Tirantes · T1 · B grafito</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Carrera popular 10K</h3>
+<p style="font-size:24px;color:#CDBFA8">Ciudad de las Artes y las Ciencias.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="10" data-title="Rodaje al amanecer" aria-roledescription="diapositiva" aria-label="11 de 26: Rodaje al amanecer"><section id="insp-tirantes-t3" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/03-tirantes_T3-slides_C-blanco_inspiracional.jpg" alt="Rodaje al amanecer: Paseo marítimo de la Malvarrosa." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;left:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">03 · Tirantes · T3 · C blanco</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Rodaje al amanecer</h3>
+<p style="font-size:24px;color:#CDBFA8">Paseo marítimo de la Malvarrosa.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="11" data-title="Tritraje sin mangas" aria-roledescription="diapositiva" aria-label="12 de 26: Tritraje sin mangas"><section id="tri-sin-mangas" data-transition="fade" data-section="Tritrajes" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/01-tri-sin-mangas_producto.jpg" alt="Mockup Tritraje sin mangas, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">01 · 2 uds</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Tritraje sin mangas</h2>
+<p style="font-size:24px;color:#5A5D63">Mono Pro Skin sin mangas con bolsillo · GSP-028-006</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Grafito con textura topográfica</li><li>Panel naranja lateral con perfil de altimetría</li><li>Logo arena en el pecho, KM CEO en el muslo</li><li>Espalda: LA PRÓXIMA REUNIÓN, QUE SEA UN 5K</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 12</p>
+
+</section></div>
+<div class="slide" data-index="12" data-title="Sector bici" aria-roledescription="diapositiva" aria-label="13 de 26: Sector bici"><section id="insp-tri-sin-mangas" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/01-tri-sin-mangas_inspiracional.jpg" alt="Sector bici: Carretera costera cerca de Valencia, al amanecer." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;right:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">01 · Tritraje sin mangas</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Sector bici</h3>
+<p style="font-size:24px;color:#CDBFA8">Carretera costera cerca de Valencia, al amanecer.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="13" data-title="Tritraje manga corta" aria-roledescription="diapositiva" aria-label="14 de 26: Tritraje manga corta"><section id="tri-manga-corta" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/02-tri-manga-corta_producto.jpg" alt="Mockup Tritraje manga corta, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">02 · 2 uds</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Tritraje manga corta</h2>
+<p style="font-size:24px;color:#5A5D63">Mono Pro Skin MC con bolsillo · GSP-028-006</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Mismo sistema que el sin mangas</li><li>Bajos de manga con filo naranja</li><li>KM CEO en la manga izquierda</li><li>Misma espalda: UN 5K en naranja</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 14</p>
+
+</section></div>
+<div class="slide" data-index="14" data-title="Sector carrera" aria-roledescription="diapositiva" aria-label="15 de 26: Sector carrera"><section id="insp-tri-manga-corta" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/02-tri-manga-corta_inspiracional.jpg" alt="Sector carrera: Triatlón de media distancia, Malvarrosa." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;right:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">02 · Tritraje manga corta</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Sector carrera</h3>
+<p style="font-size:24px;color:#CDBFA8">Triatlón de media distancia, Malvarrosa.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="15" data-title="Tritraje sin mangas" aria-roledescription="diapositiva" aria-label="16 de 26: Tritraje sin mangas"><section id="tri-arena-sin-mangas" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/01-tri-sin-mangas_arena_producto.jpg" alt="Mockup Tritraje sin mangas arena, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">01 · Versión arena · verano</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Tritraje sin mangas</h2>
+<p style="font-size:24px;color:#5A5D63">Mono Pro Skin sin mangas con bolsillo · GSP-028-006</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Base arena #CDBFA8: refleja el sol</li><li>Logo y textos en grafito</li><li>Naranja en panel, ribetes y 5K</li><li>Mismo patrón GSport que la grafito</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 16</p>
+
+</section></div>
+<div class="slide" data-index="16" data-title="Sector bici" aria-roledescription="diapositiva" aria-label="17 de 26: Sector bici"><section id="insp-tri-arena-sin-mangas" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/01-tri-sin-mangas_arena_inspiracional.jpg" alt="Sector bici: Carretera costera cerca de Valencia, al amanecer." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;right:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">01 · Tritraje sin mangas · arena</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Sector bici</h3>
+<p style="font-size:24px;color:#CDBFA8">Carretera costera cerca de Valencia, al amanecer.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="17" data-title="Tritraje manga corta" aria-roledescription="diapositiva" aria-label="18 de 26: Tritraje manga corta"><section id="tri-arena-manga-corta" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/02-tri-manga-corta_arena_producto.jpg" alt="Mockup Tritraje manga corta arena, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">02 · Versión arena · verano</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Tritraje manga corta</h2>
+<p style="font-size:24px;color:#5A5D63">Mono Pro Skin MC con bolsillo · GSP-028-006</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Base arena #CDBFA8: refleja el sol</li><li>Filo naranja en las mangas</li><li>Logo y textos en grafito</li><li>Naranja en panel y 5K</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 18</p>
+
+</section></div>
+<div class="slide" data-index="18" data-title="Sector carrera" aria-roledescription="diapositiva" aria-label="19 de 26: Sector carrera"><section id="insp-tri-arena-manga-corta" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/02-tri-manga-corta_arena_inspiracional.jpg" alt="Sector carrera: Triatlón de media distancia, Malvarrosa." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;right:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">02 · Tritraje manga corta · arena</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Sector carrera</h3>
+<p style="font-size:24px;color:#CDBFA8">Triatlón de media distancia, Malvarrosa.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="19" data-title="Camiseta algodón" aria-roledescription="diapositiva" aria-label="20 de 26: Camiseta algodón"><section id="algodon" data-transition="fade" data-section="Algodón y calcetines" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/04-algodon.jpg" alt="Mockup Camiseta algodón, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">04 · 5 uds</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Camiseta algodón</h2>
+<p style="font-size:24px;color:#5A5D63">Algodón 220–240 g · bordado (sin ficha custom GSport)</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Negro, corte boxy, cuello canalé</li><li>Logo bordado tono sobre tono, punto naranja</li><li>Etiqueta tejida naranja en el bajo</li><li>Apta para una reunión</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 20</p>
+
+</section></div>
+<div class="slide" data-index="20" data-title="Café después de entrenar · Ruzafa" aria-roledescription="diapositiva" aria-label="21 de 26: Café después de entrenar · Ruzafa"><section id="insp-algodon" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">04 · Camiseta algodón</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:56px;font-weight:400;color:#F3F1EC">Café después de entrenar · Ruzafa</h2>
+</div>
+<div style="display:flex;gap:40px">
+<img loading="lazy" decoding="async" src="assets/img/04-algodon_inspiracional.jpg" alt="Mujer de espaldas en una terraza de Ruzafa con la camiseta negra KM CEO" style="flex:1;height:540px;object-fit:cover;border-radius:8px">
+<img loading="lazy" decoding="async" src="assets/img/04-algodon_inspiracional-frontal.jpg" alt="La misma escena de frente, con el logo bordado visible" style="flex:1;height:540px;object-fit:cover;border-radius:8px">
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8D93;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 21</p>
+
+</section></div>
+<div class="slide" data-index="21" data-title="Algodón blanco roto" aria-roledescription="diapositiva" aria-label="22 de 26: Algodón blanco roto"><section id="algodon-blanco" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/04b-algodon-blanco.jpg" alt="Mockup Algodón blanco roto, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">04B · Variante</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Algodón blanco roto</h2>
+<p style="font-size:24px;color:#5A5D63">Misma prenda en #F3F1EC con bordado gris claro</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Versión opcional para verano</li><li>Bordado gris claro, punto naranja</li><li>Misma etiqueta y mensaje en la nuca</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 22</p>
+
+</section></div>
+<div class="slide" data-index="22" data-title="Calcetines" aria-roledescription="diapositiva" aria-label="23 de 26: Calcetines"><section id="calcetines" data-transition="fade" style="background:#E9E7E2;color:#141517;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/05-calcetines.jpg" alt="Mockup Calcetines, delantero y espalda" style="position:absolute;left:0;top:90px;width:1200px;height:896px;object-fit:cover">
+<div style="position:absolute;left:1264px;top:128px;width:528px;display:flex;flex-direction:column;gap:28px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:4px;text-transform:uppercase;font-weight:700">05 · 2–4 pares</p>
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:64px;font-weight:400;line-height:1.05;color:#141517">Calcetines</h2>
+<p style="font-size:24px;color:#5A5D63">Calcetines Custom · GSP-035-001 · mínimo 25 pares</p>
+<ul style="font-size:28px;line-height:1.4;color:#141517"><li>Tejido jacquard, puño 2 cm</li><li>Grafito con talón y puntera naranja</li><li>Isotipo K en arena en el tobillo</li><li>Suela: TRAIN HARD / LEAD HARDER</li></ul>
+</div>
+<p style="position:absolute;left:1264px;bottom:64px;width:528px;font-size:24px;color:#5A5D63;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 23</p>
+
+</section></div>
+<div class="slide" data-index="23" data-title="Antes de salir" aria-roledescription="diapositiva" aria-label="24 de 26: Antes de salir"><section id="insp-calcetines" data-transition="fade" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px;display:flex;flex-direction:column">
+<img loading="lazy" decoding="async" src="assets/img/05-calcetines_inspiracional.jpg" alt="Antes de salir: La suela dice LEAD HARDER." style="position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover">
+<div style="position:absolute;left:64px;bottom:64px;width:620px;display:flex;flex-direction:column;gap:12px;background:rgba(20,21,23,0.86);padding:32px;border-radius:12px">
+<p style="font-size:24px;color:#F26A1F;letter-spacing:3px;text-transform:uppercase;font-weight:700">05 · Calcetines</p>
+<h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:36px;font-weight:400;line-height:1.15;color:#F3F1EC">Antes de salir</h3>
+<p style="font-size:24px;color:#CDBFA8">La suela dice LEAD HARDER.</p>
+</div>
+
+</section></div>
+<div class="slide" data-index="24" data-title="conjunto" aria-roledescription="diapositiva" aria-label="25 de 26: conjunto"><section id="conjunto" data-transition="fade" data-section="Cierre" style="background:#141517;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:96px 128px 160px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+<img loading="lazy" decoding="async" src="assets/img/01-tri-sin-mangas_arena_producto.jpg" alt="Tritraje sin mangas, versión arena" style="width:100%;height:420px;object-fit:cover;border-radius:8px"><img loading="lazy" decoding="async" src="assets/img/02-tri-manga-corta_producto.jpg" alt="Tritraje manga corta" style="width:100%;height:420px;object-fit:cover;border-radius:8px"><img loading="lazy" decoding="async" src="assets/img/03-tirantes_T2-5k_A-naranja_producto.jpg" alt="Tirante naranja T2" style="width:100%;height:420px;object-fit:cover;border-radius:8px"><img loading="lazy" decoding="async" src="assets/img/04-algodon.jpg" alt="Algodón negro" style="width:100%;height:420px;object-fit:cover;border-radius:8px"><img loading="lazy" decoding="async" src="assets/img/04b-algodon-blanco.jpg" alt="Algodón blanco roto" style="width:100%;height:420px;object-fit:cover;border-radius:8px"><img loading="lazy" decoding="async" src="assets/img/05-calcetines.jpg" alt="Calcetines" style="width:100%;height:420px;object-fit:cover;border-radius:8px">
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8D93;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 25</p>
+
+</section></div>
+<div class="slide" data-index="25" data-title="Siguientes pasos" aria-roledescription="diapositiva" aria-label="26 de 26: Siguientes pasos"><section id="siguientes" data-transition="fade" style="background:#26282B;color:#F3F1EC;font-family:'Archivo', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between">
+<h2 style="font-family:'Archivo Black', Arial, sans-serif;font-size:72px;font-weight:400;color:#F3F1EC">Siguientes pasos</h2>
+<div style="display:flex;gap:48px"><div style="flex:1;display:flex;flex-direction:column;gap:16px;border-top:4px solid #F26A1F;padding:32px 0 0 0"><h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:34px;font-weight:400;color:#F3F1EC">Elegir tirante</h3><p style="font-size:28px;color:#CDBFA8">Una de las 9 variantes: color y texto de espalda.</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px;border-top:4px solid #F26A1F;padding:32px 0 0 0"><h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:34px;font-weight:400;color:#F3F1EC">Elegir tritraje</h3><p style="font-size:28px;color:#CDBFA8">Grafito o arena: la arena aguanta mejor el sol.</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px;border-top:4px solid #F26A1F;padding:32px 0 0 0"><h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:34px;font-weight:400;color:#F3F1EC">Validar</h3><p style="font-size:28px;color:#CDBFA8">Textos, tildes, logo, tallas y [NOMBRE] de cada uno.</p></div><div style="flex:1;display:flex;flex-direction:column;gap:16px;border-top:4px solid #F26A1F;padding:32px 0 0 0"><h3 style="font-family:'Archivo Black', Arial, sans-serif;font-size:34px;font-weight:400;color:#F3F1EC">Presupuestar</h3><p style="font-size:28px;color:#CDBFA8">Precio y plazos en GSport; calcetines desde 25 pares.</p></div></div>
+<p style="font-family:'Archivo Black', Arial, sans-serif;font-size:44px;color:#F26A1F">TRAIN HARD. LEAD HARDER.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#8A8D93;letter-spacing:2px;text-transform:uppercase">KM CEO · Equipación 2026 · 26</p>
+
+</section></div>
+  </div>
+</main>
+
+<div id="grid" role="dialog" aria-label="Todas las diapositivas"></div>
+<ul id="menu" role="menu" aria-label="Secciones">
+<li><button data-go="0">Concepto: sistema visual y mensajes</button></li>
+<li><button data-go="4">Tirantes de running: 9 variantes e inspiracionales</button></li>
+<li><button data-go="11">Tritrajes: grafito y versión arena para verano</button></li>
+<li><button data-go="19">Algodón y calcetines</button></li>
+<li><button data-go="24">Conjunto y siguientes pasos</button></li>
+</ul>
+<div id="help" role="dialog" aria-label="Atajos de teclado">
+  <kbd>←</kbd> <kbd>→</kbd> / <kbd>Espacio</kbd> navegar<br>
+  <kbd>Inicio</kbd> <kbd>Fin</kbd> primera / última<br>
+  <kbd>G</kbd> miniaturas · <kbd>F</kbd> pantalla completa<br>
+  <kbd>Esc</kbd> cerrar paneles · desliza en móvil
+</div>
+
+<nav id="chrome" aria-label="Navegación de la presentación">
+  <div id="progress"></div>
+  <span class="brand">KM <b>·</b> CEO</span>
+  <button class="btn" id="btn-menu" aria-haspopup="menu" aria-expanded="false" title="Secciones">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="hide-sm">Secciones</span>
+  </button>
+  <button class="btn" id="btn-grid" aria-pressed="false" title="Miniaturas (G)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  </button>
+  <span id="slide-title"></span>
+  <button class="btn" id="btn-prev" title="Anterior (←)" aria-label="Diapositiva anterior">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <span id="counter" aria-live="polite">1 / 26</span>
+  <button class="btn" id="btn-next" title="Siguiente (→)" aria-label="Diapositiva siguiente">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button class="btn hide-sm" id="btn-full" title="Pantalla completa (F)" aria-label="Pantalla completa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+  </button>
+  <button class="btn hide-sm" id="btn-help" title="Atajos" aria-label="Atajos de teclado" aria-expanded="false">?</button>
+</nav>
+
+<script>
+(() => {
+  const stage = document.getElementById('stage');
+  const viewport = document.getElementById('viewport');
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  const $ = id => document.getElementById(id);
+  const grid = $('grid'), menu = $('menu'), help = $('help');
+  let current = 0;
+
+  function fit() {
+    const r = viewport.getBoundingClientRect();
+    const s = Math.min(r.width / 1920, r.height / 1080);
+    stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  }
+
+  function go(n, push = true) {
+    n = Math.max(0, Math.min(total - 1, n));
+    slides[current].classList.remove('active');
+    slides[current].setAttribute('aria-hidden', 'true');
+    current = n;
+    const el = slides[current];
+    el.classList.add('active');
+    el.removeAttribute('aria-hidden');
+    // precarga las imágenes de la siguiente
+    const nx = slides[current + 1];
+    if (nx) nx.querySelectorAll('img[loading="lazy"]').forEach(i => i.loading = 'eager');
+    el.querySelectorAll('img[loading="lazy"]').forEach(i => i.loading = 'eager');
+    $('counter').textContent = `${current + 1} / ${total}`;
+    $('slide-title').textContent = el.dataset.title;
+    $('progress').style.width = `${((current + 1) / total) * 100}%`;
+    $('btn-prev').disabled = current === 0;
+    $('btn-next').disabled = current === total - 1;
+    if (push) history.replaceState(null, '', `#${current + 1}`);
+    document.querySelectorAll('.thumb').forEach((t, i) => t.classList.toggle('current', i === current));
+  }
+  const next = () => go(current + 1), prev = () => go(current - 1);
+
+  // Miniaturas (se construyen la primera vez que se abren)
+  let gridBuilt = false;
+  function buildGrid() {
+    slides.forEach((s, i) => {
+      const b = document.createElement('button');
+      b.className = 'thumb';
+      b.innerHTML = `<span class="frame"><div class="clone">${s.innerHTML}</div></span><span class="cap"><b>${i + 1}</b>${s.dataset.title}</span>`;
+      b.addEventListener('click', () => { toggleGrid(false); go(i); });
+      grid.appendChild(b);
+    });
+    gridBuilt = true;
+    scaleThumbs();
+  }
+  function scaleThumbs() {
+    grid.querySelectorAll('.frame').forEach(f => {
+      f.firstElementChild.style.transform = `scale(${f.clientWidth / 1920})`;
+    });
+  }
+  function toggleGrid(open = !grid.classList.contains('open')) {
+    if (open && !gridBuilt) { grid.classList.add('open'); buildGrid(); }
+    grid.classList.toggle('open', open);
+    $('btn-grid').setAttribute('aria-pressed', open);
+    if (open) { scaleThumbs(); go(current, false); grid.querySelectorAll('.thumb')[current].focus(); }
+  }
+  function toggleMenu(open = !menu.classList.contains('open')) {
+    menu.classList.toggle('open', open);
+    $('btn-menu').setAttribute('aria-expanded', open);
+    if (open) menu.querySelector('button').focus();
+  }
+  function toggleHelp(open = !help.classList.contains('open')) {
+    help.classList.toggle('open', open);
+    $('btn-help').setAttribute('aria-expanded', open);
+  }
+  function fullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+    else document.exitFullscreen?.();
+  }
+
+  $('btn-next').addEventListener('click', next);
+  $('btn-prev').addEventListener('click', prev);
+  $('btn-grid').addEventListener('click', () => toggleGrid());
+  $('btn-menu').addEventListener('click', e => { e.stopPropagation(); toggleMenu(); });
+  $('btn-help').addEventListener('click', e => { e.stopPropagation(); toggleHelp(); });
+  $('btn-full').addEventListener('click', fullscreen);
+  menu.addEventListener('click', e => {
+    const b = e.target.closest('[data-go]');
+    if (b) { toggleMenu(false); toggleGrid(false); go(+b.dataset.go); }
+  });
+  document.addEventListener('click', e => {
+    if (!menu.contains(e.target)) toggleMenu(false);
+    if (!help.contains(e.target)) toggleHelp(false);
+  });
+  viewport.addEventListener('click', e => {
+    // clic en la mitad derecha avanza, izquierda retrocede
+    const r = viewport.getBoundingClientRect();
+    (e.clientX - r.left > r.width / 2) ? next() : prev();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key;
+    if (k === 'Escape') { toggleGrid(false); toggleMenu(false); toggleHelp(false); return; }
+    if (grid.classList.contains('open') && k !== 'g' && k !== 'G') return;
+    if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
+    else if (k === 'Home') go(0);
+    else if (k === 'End') go(total - 1);
+    else if (k === 'g' || k === 'G') toggleGrid();
+    else if (k === 'f' || k === 'F') fullscreen();
+    else if (k === '?') toggleHelp();
+  });
+
+  // Gestos táctiles
+  let tx = null, ty = null;
+  viewport.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  viewport.addEventListener('touchend', e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); }
+    tx = ty = null;
+  });
+
+  window.addEventListener('resize', () => { fit(); if (grid.classList.contains('open')) scaleThumbs(); });
+  window.addEventListener('hashchange', () => {
+    const n = parseInt(location.hash.slice(1), 10);
+    if (!isNaN(n)) go(n - 1, false);
+  });
+
+  slides.forEach(s => s.setAttribute('aria-hidden', 'true'));
+  fit();
+  const start = parseInt(location.hash.slice(1), 10);
+  go(isNaN(start) ? 0 : start - 1, false);
+})();
+</script>
+</body>
+</html>
